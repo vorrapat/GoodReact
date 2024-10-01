@@ -3,34 +3,64 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import {useState} from "react";
+import {useState, useEffect} from "react";
+import { useParams } from 'react-router-dom';
 import axios from "axios";
+import AppNavbar from '../components/AppNavbar';
+import SideMenu from '../components/SideMenu';
 
-const url = process.env.REACT_APP_BASE_URL;
+
 const defaultTheme = createTheme();
+const token = localStorage.getItem('token');
+const url = process.env.REACT_APP_BASE_URL;
 
-export default function Register() {
+export default function Update() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const { id } = useParams();
+
+  useEffect(() => {
+    // Fetch the current customer data when the component is mounted      
+    axios.get(`${url}/profile/${id}`,
+      {
+        headers: {
+        'Authorization': `Bearer ${token}`,
+        },
+      })
+      .then(response => {
+        const customer = response.data;
+        setUsername(customer.username);
+        setFirstName(customer.firstName);
+        setLastName(customer.lastName);        
+      })
+      .catch(error => {
+        console.error('Error fetching customer data:', error);
+      });
+  }, [id]);
+
 
   const handleSubmit = async (e) => {
       e.preventDefault();
 
-      const response = await axios.post(url +'/register',
+      const response = await axios.put(`${url}/customer/${id}`,
+          {                       
+            username,
+            password,
+            firstName,
+            lastName
+          },
           {
-              username,
-              password,
-              firstName,
-              lastName
+            headers: {              
+              'Authorization': `Bearer ${token}`
+            }
           }
       );
 
@@ -39,12 +69,14 @@ export default function Register() {
       alert(result['message']);
 
       if(result['status'] === true){            
-          window.location.href = '/login';
+          window.location.href = '/admin/customer';
       }
   }
 
   return (
     <ThemeProvider theme={defaultTheme}>
+      <SideMenu />
+      <AppNavbar />            
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
@@ -59,7 +91,7 @@ export default function Register() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-          สมัครสมาชิก
+            แก้ไขข้อมูลลูกค้า
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
@@ -93,7 +125,7 @@ export default function Register() {
                   required
                   fullWidth
                   id="username"
-                  label="ชื่่อผู้ใช้"
+                  label="ชื่อผู้ใช้"
                   name="username"
                   autoComplete="username"
                   value={username}
@@ -113,10 +145,6 @@ export default function Register() {
                   onChange={ (e) => setPassword(e.target.value) }
                 />
               </Grid>
-              <Grid item xs={12}>
-                การกดการสมัครสมาชิกถือว่าท่านยอมรับใน
-                <Link href="/privacypolicy" target="_blank" variant="body2">นโยบายความเป็นส่วนตัว</Link>
-              </Grid>
             </Grid>
             <Button
               id="btnCreate"
@@ -124,11 +152,10 @@ export default function Register() {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2, backgroundColor: '#FE6AA6' }}
+              sx={{ mt: 3, mb: 2 }}
             >
-              สมัครสมาชิก
+              บันทึกข้อมูล
             </Button>
-
           </Box>
         </Box>        
       </Container>

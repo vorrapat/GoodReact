@@ -3,7 +3,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -12,11 +11,12 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import {useState} from "react";
 import axios from "axios";
+import AppNavbar from '../components/AppNavbar';
+import SideMenu from '../components/SideMenu';
 
-const url = process.env.REACT_APP_BASE_URL;
 const defaultTheme = createTheme();
 
-export default function Register() {
+export default function Create() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -25,7 +25,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
       e.preventDefault();
 
-      const response = await axios.post(url +'/register',
+      const response = await axios.post(process.env.REACT_APP_BASE_URL+'/register',
           {
               username,
               password,
@@ -39,12 +39,14 @@ export default function Register() {
       alert(result['message']);
 
       if(result['status'] === true){            
-          window.location.href = '/login';
+          window.location.href = '/admin/customer';
       }
   }
 
   return (
     <ThemeProvider theme={defaultTheme}>
+      <SideMenu />
+      <AppNavbar />            
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
@@ -59,7 +61,7 @@ export default function Register() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-          สมัครสมาชิก
+          เพิ่มข้อมูลสมาชิก
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
@@ -113,10 +115,7 @@ export default function Register() {
                   onChange={ (e) => setPassword(e.target.value) }
                 />
               </Grid>
-              <Grid item xs={12}>
-                การกดการสมัครสมาชิกถือว่าท่านยอมรับใน
-                <Link href="/privacypolicy" target="_blank" variant="body2">นโยบายความเป็นส่วนตัว</Link>
-              </Grid>
+     
             </Grid>
             <Button
               id="btnCreate"
@@ -124,9 +123,9 @@ export default function Register() {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2, backgroundColor: '#FE6AA6' }}
+              sx={{ mt: 3, mb: 2 }}
             >
-              สมัครสมาชิก
+              บันทึกข้อมูล
             </Button>
 
           </Box>
